@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,50 +12,95 @@
       height: 300px;
       background-color: white;
     }
+
+    /* 이미지 대신 배경 이미지로 DDong 추가 */
     .obstacle {
       position: absolute;
       width: 50px;
       height: 50px;
-      background-color: #FF5733;
+      background-image: url('/images/Ddong.PNG'); /* DDong 이미지로 대체 */
+      background-size: contain;
+      animation: fall 2s linear infinite; /* fall 애니메이션 적용 */
     }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(-50px); /* 위에서 시작 */
+        opacity: 0; /* 투명도 0으로 시작 */
+      }
+      100% {
+        transform: translateY(300px); /* 아래로 떨어지는 거리 */
+        opacity: 1; /* 투명도 1로 도달 */
+      }
+    }
+
     .player-icon {
       width: 50px;
       height: 50px;
+      position: absolute; /* 플레이어 아이콘을 절대 위치로 설정 */
+      bottom: 0; /* 아래쪽에 배치 */
+      left: 0; /* 시작 위치는 왼쪽 끝 */
     }
   </style>
-  <script>
+  <script th:inline="javascript">
+    /*<![CDATA[*/
     document.addEventListener("DOMContentLoaded", function() {
       const gameArea = document.querySelector(".game-area");
       let score = 0;
+      let isGameOver = false;
 
-      function createObstacle() {
-        const obstacle = document.createElement("div");
-        obstacle.className = "obstacle";
-        obstacle.style.left = Math.random() * (gameArea.offsetWidth - 50) + "px";
-        gameArea.appendChild(obstacle);
+      const player = document.querySelector(".player-icon");
+      const playerSpeed = 10; // 캐릭터의 움직임 속도
 
-        obstacle.addEventListener("animationend", function() {
-          this.remove();
-        });
+      document.addEventListener("keydown", function(event) {
+        if (isGameOver) return;
 
-        obstacle.addEventListener("animationiteration", function() {
-          score++;
-          document.querySelector("#score").textContent = score;
+        const playerPosition = parseInt(player.style.left) || 0;
+
+        if (event.key === "ArrowLeft" && playerPosition > 0) {
+          player.style.left = (playerPosition - playerSpeed) + "px";
+        } else if (event.key === "ArrowRight" && playerPosition < (gameArea.offsetWidth - 50)) {
+          player.style.left = (playerPosition + playerSpeed) + "px";
+        }
+
+        checkCollision();
+      });
+
+      function checkCollision() {
+        const obstacles = document.querySelectorAll(".obstacle");
+        obstacles.forEach(obstacle => {
+          if (isColliding(player, obstacle)) {
+            endGame();
+          }
         });
       }
 
-      setInterval(createObstacle, 2000);
+      function isColliding(player, obstacle) {
+        const playerRect = player.getBoundingClientRect();
+        const obstacleRect = obstacle.getBoundingClientRect();
+
+        return (
+          playerRect.top < obstacleRect.bottom &&
+          playerRect.bottom > obstacleRect.top &&
+          playerRect.left < obstacleRect.right &&
+          playerRect.right > obstacleRect.left
+        );
+      }
+
+      function endGame() {
+        isGameOver = true;
+        alert("Game Over! Your score: " + score);
+      }
     });
+    /*]]>*/
   </script>
 </head>
 <body>
 <div class="container">
-  <h1 class="text-center">Dodge the Poop Game</h1>
-  <div class="text-center">
-    <img th:src="${game.playerIcon}" class="player-icon">
-  </div>
+  <h1 class="text-center"> </h1>
   <div class="game-area">
-    <!-- Obstacles will be displayed here -->
+    <div class="text-center obstacle"></div>
+    <img th:src="@{/images/mainicon.PNG}" class="player-icon">
   </div>
   <div class="text-center">
     <p>Score: <span id="score">0</span></p>
