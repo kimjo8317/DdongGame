@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dodge the Poop Game</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    .game-area {
+      position: relative;
+      width: 100%;
+      height: 300px;
+      background-color: white;
+    }
+    .obstacle {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      background-color: #FF5733;
+    }
+    .player-icon {
+      width: 50px;
+      height: 50px;
+    }
+  </style>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const gameArea = document.querySelector(".game-area");
+      let score = 0;
+
+      function createObstacle() {
+        const obstacle = document.createElement("div");
+        obstacle.className = "obstacle";
+        obstacle.style.left = Math.random() * (gameArea.offsetWidth - 50) + "px";
+        gameArea.appendChild(obstacle);
+
+        obstacle.addEventListener("animationend", function() {
+          this.remove();
+        });
+
+        obstacle.addEventListener("animationiteration", function() {
+          score++;
+          document.querySelector("#score").textContent = score;
+        });
+      }
+
+      setInterval(createObstacle, 2000);
+    });
+  </script>
+</head>
+<body>
+<div class="container">
+  <h1 class="text-center">Dodge the Poop Game</h1>
+  <div class="text-center">
+    <img th:src="${game.playerIcon}" class="player-icon">
+  </div>
+  <div class="game-area">
+    <!-- Obstacles will be displayed here -->
+  </div>
+  <div class="text-center">
+    <p>Score: <span id="score">0</span></p>
+  </div>
+</div>
+</body>
+</html>

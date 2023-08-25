@@ -1,0 +1,7 @@
+# application.yml
+server:
+  port: 8080
+
+game:
+  player-icon: /images/player.png
+  obstacle-icon: /images/obstacle.png
